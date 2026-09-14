@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Renderer, Camera, Transform, Texture, Program, Mesh } from 'ogl';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -17,7 +18,6 @@ import {
 } from '@/lib/variant-1/utils';
 import { cylinderVertex, cylinderFragment, particleVertex, particleFragment } from '@/lib/variant-1/shaders';
 import Loader from '@/components/loader';
-import { CodropsFrame } from '@/components/codrops-frame';
 
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger, CustomEase, ScrollSmoother);
@@ -29,7 +29,7 @@ if (typeof window !== 'undefined') {
 }
 
 export function CylinderCarousel() {
-  document.title = 'Cinematic Scroll Animations | Codrops | Demo 1';
+  document.title = 'Senior React Developer | Accenture Portfolio';
   const [isLoading, setIsLoading] = useState(true);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -437,23 +437,19 @@ export function CylinderCarousel() {
     <>
       <Loader isLoading={isLoading} className="bg-[#000]" classNameLoader="bg-[#fff]" />
 
-      <CodropsFrame
-        demoTitle="Cinematic 3D Scroll Experiences with GSAP"
-        articleUrl="https://tympanus.net/codrops/?p=103299"
-        githubUrl="https://github.com/JosephASG/codrops-cinematic-scroll-animations"
-        demos={[
-          { label: 'Demo 1', href: '/', current: true },
-          { label: 'Demo 2', href: '/variant-2', current: false },
-        ]}
-        tags={['gsap', 'ogl', 'webgl', 'scroll', '3d']}
-        tagsLink={[
-          'https://tympanus.net/codrops/hub/tag/gsap/',
-          'https://tympanus.net/codrops/hub/tag/ogl/',
-          'https://tympanus.net/codrops/hub/tag/webgl/',
-          'https://tympanus.net/codrops/hub/tag/scroll/',
-          'https://tympanus.net/codrops/hub/tag/3d/',
-        ]}
-      />
+      <header className="fixed top-0 left-0 right-0 z-50 px-8 py-6 pointer-events-auto">
+        <div className="flex items-center justify-between">
+          <Link to="/" className="text-white text-sm font-semibold uppercase tracking-[0.26em]">
+            Jothyrangan K
+          </Link>
+          <nav className="flex items-center gap-8 text-white/80 text-xs uppercase tracking-[0.2em]">
+            <Link to="/variant-2/experience" className="hover:text-white">Experience</Link>
+            <Link to="/variant-2/work" className="hover:text-white">Work</Link>
+            <Link to="/variant-2/skills" className="hover:text-white">Skills</Link>
+            <Link to="/variant-2/contact" className="hover:text-white">Contact</Link>
+          </nav>
+        </div>
+      </header>
 
       <div className="fixed inset-0 w-full h-svh z-0">
         <canvas ref={canvasRef} className="w-full h-full" style={{ display: 'block' }} />
@@ -472,23 +468,6 @@ export function CylinderCarousel() {
             <p className="text-2xl font-[300] max-md:text-base opacity-50 mt-2">{perspective.description}</p>
           </div>
         ))}
-      </div>
-
-      <div className="fixed bottom-8 right-8 z-10 pointer-events-none">
-        <div className="flex flex-col items-center gap-2 animate-bounce">
-          <svg
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1"
-            className="text-white/60"
-          >
-            <path d="M12 5v14M19 12l-7 7-7-7" />
-          </svg>
-          <span className="text-m text-white/40">Scroll</span>
-        </div>
       </div>
 
       <div ref={smoothWrapperRef} id="smooth-wrapper" className="relative z-20">

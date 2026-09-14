@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Link, useParams } from 'react-router-dom';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { useGLTF, PerspectiveCamera } from '@react-three/drei';
 import gsap from 'gsap';
@@ -14,7 +15,6 @@ import { scenePerspectives } from '@/lib/variant-2/scene-data';
 
 import * as THREE from 'three';
 import Loader from '@/components/loader';
-import { CodropsFrame } from '@/components/codrops-frame';
 
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger, ScrollSmoother, SplitText);
@@ -79,7 +79,8 @@ function Scene({ cameraAnimRef, targetAnimRef }: any) {
 }
 
 export default function CinematicSceneShowcase() {
-  document.title = 'Cinematic Scroll Animations | Codrops | Demo 2';
+  document.title = 'Senior React Developer | Portfolio';
+  const { section } = useParams();
   const containerRef = useRef<HTMLDivElement>(null);
   const smoothWrapperRef = useRef<HTMLDivElement>(null);
   const smoothContentRef = useRef<HTMLDivElement>(null);
@@ -91,6 +92,36 @@ export default function CinematicSceneShowcase() {
   const splitInstancesRef = useRef<SplitText[]>([]);
   const progressBarRef = useRef<HTMLDivElement>(null);
   const progressTextRef = useRef<HTMLSpanElement>(null);
+
+  const activeSection = useMemo(() => {
+    const normalized = (section ?? 'experience').toLowerCase();
+    return {
+      experience: {
+        title: 'EXPERIENCE',
+        subtitle: 'Senior React Developer • Accenture',
+        position: 'center' as const,
+      },
+      work: {
+        title: 'WORK',
+        subtitle: 'Building digital products with React and UX strategy',
+        position: 'left' as const,
+      },
+      skills: {
+        title: 'SKILLS',
+        subtitle: 'React • TypeScript • Frontend Architecture',
+        position: 'right' as const,
+      },
+      contact: {
+        title: 'CONTACT',
+        subtitle: 'Available for frontend and product engineering work',
+        position: 'top' as const,
+      },
+    }[normalized] ?? {
+      title: 'EXPERIENCE',
+      subtitle: 'Senior React Developer • Accenture',
+      position: 'center' as const,
+    };
+  }, [section]);
 
   useEffect(() => {
     if (!containerRef.current || !smoothWrapperRef.current || !smoothContentRef.current) return;
@@ -172,71 +203,51 @@ export default function CinematicSceneShowcase() {
 
       console.log('[v0] Camera timeline created');
 
-      scenePerspectives.forEach((perspective, index) => {
-        const textEl = textRefs.current[index];
-        if (textEl) {
-          if (perspective.hideText) {
-            gsap.set(textEl, { opacity: 0, pointerEvents: 'none' });
-            return;
-          }
+      const textEl = textRefs.current[0];
+      if (textEl) {
+        const titleEl = textEl.querySelector('h2');
+        const subtitleEl = textEl.querySelector('p');
 
-          const titleEl = textEl.querySelector('h2');
-          const subtitleEl = textEl.querySelector('p');
+        if (titleEl && subtitleEl) {
+          const titleSplit = new SplitText(titleEl, { type: 'chars' });
+          const subtitleSplit = new SplitText(subtitleEl, { type: 'chars' });
+          splitInstancesRef.current.push(titleSplit, subtitleSplit);
 
-          if (titleEl && subtitleEl) {
-            const titleSplit = new SplitText(titleEl, { type: 'chars' });
-            const subtitleSplit = new SplitText(subtitleEl, { type: 'chars' });
-            splitInstancesRef.current.push(titleSplit, subtitleSplit);
+          gsap.set([titleSplit.chars, subtitleSplit.chars], {
+            x: 0,
+            opacity: 1,
+          });
 
-            const textTimeline = gsap.timeline({
-              scrollTrigger: {
-                trigger: containerRef.current,
-                start: `${perspective.scrollProgress.start}% top`,
-                end: `${perspective.scrollProgress.end}% top`,
-                scrub: 0.5,
-              },
-            });
+          const textTimeline = gsap.timeline({
+            scrollTrigger: {
+              trigger: containerRef.current,
+              start: 'top top',
+              end: 'bottom bottom',
+              scrub: 0.7,
+            },
+          });
 
-            if (index === 0) {
-              gsap.set([titleSplit.chars, subtitleSplit.chars], {
+          textTimeline
+            .fromTo(
+              [subtitleSplit.chars, titleSplit.chars],
+              { x: -40, opacity: 0 },
+              {
                 x: 0,
                 opacity: 1,
-              });
-
-              textTimeline.to([subtitleSplit.chars, titleSplit.chars], {
-                x: 100,
-                opacity: 0,
-                duration: 1,
-                stagger: -0.02,
-                ease: 'power2.in',
-              });
-            } else {
-              const isLastPerspective = index === scenePerspectives.length - 1;
-
-              textTimeline
-                .fromTo(
-                  [subtitleSplit.chars, titleSplit.chars],
-                  { x: -100, opacity: 0 },
-                  {
-                    x: 0,
-                    opacity: 1,
-                    duration: isLastPerspective ? 0.2 : 0.25,
-                    stagger: isLastPerspective ? -0.01 : -0.02,
-                    ease: 'power2.out',
-                  }
-                )
-                .to({}, { duration: isLastPerspective ? 1.0 : 0.5 })
-                .to([subtitleSplit.chars, titleSplit.chars], {
-                  x: 100,
-                  opacity: 0,
-                  duration: 0.25,
-                  stagger: -0.02,
-                  ease: 'power2.in',
-                });
-            }
-          }
+                duration: 0.8,
+                stagger: -0.015,
+                ease: 'power2.out',
+              }
+            )
+            .to([subtitleSplit.chars, titleSplit.chars], {
+              x: 120,
+              opacity: 0,
+              duration: 1.2,
+              stagger: -0.02,
+              ease: 'power2.in',
+            });
         }
-      });
+      }
 
       console.log('[v0] SplitText animations created');
     });
@@ -253,23 +264,21 @@ export default function CinematicSceneShowcase() {
   return (
     <>
       <Loader isLoading={isLoading} className="bg-[#0a0a0a]" classNameLoader="bg-[#f2f2f2]" />
-      <CodropsFrame
-        demoTitle="Cinematic 3D Scroll Experiences with GSAP"
-        articleUrl="https://tympanus.net/codrops/?p=103299"
-        githubUrl="https://github.com/JosephASG/codrops-cinematic-scroll-animations"
-        demos={[
-          { label: 'Demo 1', href: '/', current: false },
-          { label: 'Demo 2', href: '/variant-2', current: true },
-          // { label: "Variation 3", href: "#", current: false },
-        ]}
-        tags={['three.js', 'R3F', 'gsap', '3D']}
-        tagsLink={[
-          'https://tympanus.net/codrops/hub/tag/three.js/',
-          'https://tympanus.net/codrops/hub/tag/r3f/',
-          'https://tympanus.net/codrops/hub/tag/gsap/',
-          'https://tympanus.net/codrops/hub/tag/3d/',
-        ]}
-      />
+
+      <header className="fixed top-0 left-0 right-0 z-50 px-8 py-6 pointer-events-auto">
+        <div className="flex items-center justify-between gap-6">
+          <Link to="/" className="text-white text-sm font-semibold uppercase tracking-[0.26em]">
+            Jothyrangan K
+          </Link>
+          <nav className="flex items-center gap-8 text-white/80 text-xs uppercase tracking-[0.2em]">
+            <Link to="/variant-2/experience" className="hover:text-white">Experience</Link>
+            <Link to="/variant-2/work" className="hover:text-white">Work</Link>
+            <Link to="/variant-2/skills" className="hover:text-white">Skills</Link>
+            <Link to="/variant-2/contact" className="hover:text-white">Contact</Link>
+          </nav>
+        </div>
+      </header>
+
       <div className="fixed inset-0 w-full h-svh z-0">
         <Canvas
           gl={{
@@ -327,22 +336,19 @@ export default function CinematicSceneShowcase() {
       </div>
 
       <div className="fixed inset-0 pointer-events-none z-10">
-        {scenePerspectives.map((perspective, index) => (
-          <div
-            key={index}
-            ref={(el) => {
-              textRefs.current[index] = el;
-            }}
-            className={`absolute max-md:w-full ${getPositionClasses(perspective.position)}`}
-          >
-            <h2 className="text-[4vw] max-md:text-2xl font-bold leading-[1.1] mb-2 tracking-tight text-white drop-shadow-2xl">
-              {perspective.title}
-            </h2>
-            <p className="text-[1.25vw] max-md:text-l leading-[1.4] text-white/70 font-light drop-shadow-lg">
-              {perspective.subtitle}
-            </p>
-          </div>
-        ))}
+        <div
+          ref={(el) => {
+            textRefs.current[0] = el;
+          }}
+          className={`absolute max-md:w-full ${getPositionClasses(activeSection.position)}`}
+        >
+          <h2 className="text-[4vw] max-md:text-2xl font-bold leading-[1.1] mb-2 tracking-tight text-white drop-shadow-2xl">
+            {activeSection.title}
+          </h2>
+          <p className="text-[1.25vw] max-md:text-l leading-[1.4] text-white/70 font-light drop-shadow-lg">
+            {activeSection.subtitle}
+          </p>
+        </div>
       </div>
 
       <div ref={smoothWrapperRef} id="smooth-wrapper" className="relative z-20">

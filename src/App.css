@@ -5,12 +5,12 @@ body {
   padding: 0;
 }
 
-.demo-1 {
+.demo-1,
+.demo-2 {
   font-family: 'freightdispcmp-pro', serif;
 }
 
 .demo-2 {
-  font-family: 'widescreen-uex', sans-serif;
   font-size: 12px;
 }
 

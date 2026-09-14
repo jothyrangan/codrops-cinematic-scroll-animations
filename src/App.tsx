@@ -23,7 +23,7 @@ function BodyClassSetter() {
 
     if (location.pathname === '/') {
       document.body.classList.add('demo-1');
-    } else if (location.pathname === '/variant-2') {
+    } else if (location.pathname.startsWith('/variant-2')) {
       document.body.classList.add('demo-2');
     }
   }, [location.pathname]);
@@ -40,6 +40,7 @@ function App() {
         <Routes>
           <Route path="/" element={<CylinderCarousel />} />
           <Route path="/variant-2" element={<CinematicSceneShowcase />} />
+          <Route path="/variant-2/:section" element={<CinematicSceneShowcase />} />
         </Routes>
       </main>
     </Router>
